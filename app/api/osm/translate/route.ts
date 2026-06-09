@@ -124,7 +124,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized. Please login.' }, { status: 401 });
     }
 
-    let accessToken = session.accessToken;
+    let accessToken = session.accessToken || session.user?.osmApiToken;
 
     // Robust fallback: always search MongoDB for the OSM token
     if (!accessToken) {
