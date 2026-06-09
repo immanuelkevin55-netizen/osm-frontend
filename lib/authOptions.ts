@@ -1,6 +1,7 @@
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 
 export const authOptions = {
   adapter: MongoDBAdapter(clientPromise) as any,
@@ -24,11 +25,12 @@ export const authOptions = {
           const db = await (await clientPromise).db('osm');
           const user = await db.collection('users').findOne({ email: credentials.email });
           
-          if (user && user.password === credentials.password) {
+          if (user && await bcrypt.compare(credentials.password, user.password)) {
             return {
               id: user._id.toString(),
               name: user.name,
               email: user.email,
+              osmApiToken: user.osmApiToken || null,
             };
           }
         }
@@ -64,16 +66,20 @@ export const authOptions = {
     },
   ],
   callbacks: {
-    async jwt({ token, account }: any) {
+    async jwt({ token, account, user }: any) {
       if (account) {
         token.accessToken = account.access_token;
+      }
+      if (user?.osmApiToken) {
+        token.osmApiToken = user.osmApiToken;
       }
       return token;
     },
     async session({ session, token }: any) {
       if (session.user && token) {
-        session.user.id = token.sub;
-        session.accessToken = token.accessToken;
+        session.user.id = token.sub as string;
+        (session as any).accessToken = token.accessToken;
+        (session.user as any).osmApiToken = token.osmApiToken;
       }
       return session;
     },

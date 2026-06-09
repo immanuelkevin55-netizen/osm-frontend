@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [osmApiToken, setOsmApiToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, osmApiToken }),
       });
 
       if (res.ok) {
@@ -103,6 +104,20 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
+              className="w-full bg-[#0F1628]/50 border border-[#2A344A] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316] transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5" htmlFor="osmApiToken">
+              OpenStreetMap API Token <span className="text-slate-500 font-normal">(Optional)</span>
+            </label>
+            <input
+              id="osmApiToken"
+              type="text"
+              value={osmApiToken}
+              onChange={(e) => setOsmApiToken(e.target.value)}
+              placeholder="Your OSM API Token"
               className="w-full bg-[#0F1628]/50 border border-[#2A344A] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316] transition-all"
             />
           </div>
